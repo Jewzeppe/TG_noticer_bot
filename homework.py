@@ -15,7 +15,6 @@ CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 practicum_api_url = (
     'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
 )
-CHAT_ID = '514925861'
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 

@@ -8,13 +8,15 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+FORMAT = u'%(filename)s[LINE:%(lineno)d]#%(levelname)-8s[%(asctime)s]%(message)s'
+logging.basicConfig(filename='sample.log', format=FORMAT, level=logging.INFO)
+
 
 PRACTICUM_TOKEN = os.getenv('PRACTICUM_TOKEN')
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-practicum_api_url = (
-    'https://praktikum.yandex.ru/api/user_api/homework_statuses/'
-)
+PRACTICUM_API_URL = 'https://praktikum.yandex.ru/api'
+METHOD_URL = '/user_api/homework_statuses/'
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
 
 
@@ -22,24 +24,28 @@ def parse_homework_status(homework):
     homework_name = homework.get('homework_name')
     if homework.get('status') == 'rejected':
         verdict = 'К сожалению в работе нашлись ошибки.'
-    else:
+    elif homework.get('status') == 'approved':
         verdict = (
             'Ревьюеру всё понравилось, можно приступать к следующему уроку.'
         )
+    else:
+        return 'Что то поломалось =('
     return f'У вас проверили работу "{homework_name}"!\n\n{verdict}'
 
 
 def get_homework_statuses(current_timestamp):
+    if current_timestamp is None:
+        return 'Дата задана неверно'
     params = {'from_date': current_timestamp}
     headers = {'Authorization': f'OAuth {PRACTICUM_TOKEN}'}
     try:
         homework_statuses = requests.get(
-            practicum_api_url,
+            (PRACTICUM_API_URL+METHOD_URL),
             params=params,
             headers=headers)
     except requests.exceptions.RequestException as e:
-        logging.error(f'Ошибка запроса: {e}')
-        raise
+        logging.error(f'Ошибка запроса{homework_statuses}: {e}')
+        None
     return homework_statuses.json()
 
 
@@ -61,7 +67,7 @@ def main():
             time.sleep(300)
 
         except Exception as e:
-            print(f'Бот упал с ошибкой: {e}')
+            logging.error(f'Бот упал с ошибкой: {e}')
             time.sleep(5)
             continue
 

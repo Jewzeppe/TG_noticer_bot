@@ -8,7 +8,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-FORMAT = u'%(filename)s[LINE:%(lineno)d]#%(levelname)-8s[%(asctime)s]%(message)s'
+FORMAT = (
+    u'%(filename)s[LINE:%(lineno)d]#%(levelname)-8s[%(asctime)s]%(message)s'
+)
 logging.basicConfig(filename='sample.log', format=FORMAT, level=logging.INFO)
 
 

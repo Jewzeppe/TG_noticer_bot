@@ -22,6 +22,11 @@ METHODS = {
     'hw_statuses': '/user_api/homework_statuses/'
 }
 bot = telegram.Bot(token=TELEGRAM_TOKEN)
+verdicts = {
+    'rejected': 'К сожалению в работе нашлись ошибки.',
+    'approved':
+    'Ревьюеру всё понравилось, можно приступать к следующему уроку.'
+}
 
 
 def parse_homework_status(homework):
@@ -31,11 +36,6 @@ def parse_homework_status(homework):
         return (f'Ошибка запроса{homework}: {e}')
     homework_name = homework.get('homework_name')
     status = homework.get('status')
-    verdicts = {
-        'rejected': 'К сожалению в работе нашлись ошибки.',
-        'approved':
-        'Ревьюеру всё понравилось, можно приступать к следующему уроку.'
-    }
     if status not in verdicts:
         logging.info('Статус работы указан неверно.')
         return 'Что-то поломалось =('
@@ -43,7 +43,7 @@ def parse_homework_status(homework):
 
 
 def get_homework_statuses(current_timestamp):
-    if (current_timestamp is None) or not (isinstance(current_timestamp, int)):
+    if not isinstance(current_timestamp, int):
         current_timestamp = int(time.time())
         logging.error('Дата неверная. Перезадана заново.')
         return 'Дата задана неверно'
